@@ -42,7 +42,7 @@ public class EmailServiceTest {
 
         // Execute the method being tested
         Test.startTest();
-        EmailService.sendEmail(whatIdAndContactMapping, 'Apology email');
+        EmailService.sendEmail(whatIdAndContactMapping, 'Apologyxx');
         Test.stopTest();
 
         // no error until now
