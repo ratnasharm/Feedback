@@ -1,49 +1,37 @@
 public class NameParser {
 
-  /**
-   * Represents a full name with first and last name components.
-   */
   public class FullName {
+      
+    private FullName(String fName, String lName){
+      this.firstName = fName;
+      this.lastName = lName;
+    }
 
-      private FullName(String fName, String lName) {
-          this.firstName = fName;
-          this.lastName = lName;
-      }
-
-      public String firstName;
-      public String lastName;
+    public String firstName;
+    public String lastName;
 
   }
 
   /**
-   * Extracts first and last name from a full name string.
-   *
-   * This method assumes the following:
-   * - The full name follows the standard format "FirstName LastName".
-   * - The name may contain extra spaces before or after.
-   * - Only the first two parts of the name are considered.
-   *
-   * @param fullName The full name string (e.g., "John Doe").
-   * @return A FullName object containing the extracted first and last names.
+   * Method to extract first name and last name from a full name
+   * @param fullName The full name string (e.g., "John Doe")
+   * @return A map with keys 'FirstName' and 'LastName'
    */
   public static FullName extractNames(String fullName) {
       // Initialize default values
-      String firstName = "";
-      String lastName = "";
+      String firstName = '';
+      String lastName = '';
 
-      // Remove leading/trailing whitespace from the input string
-      String trimmedFullName = fullName.trim();
-
-      // Split the trimmed full name into parts using a space delimiter
-      if (!String.isBlank(trimmedFullName)) {
-          String[] nameParts = trimmedFullName.split("\\s+", 2); // Split into at most two parts
-
-          // Assign the first and last names based on the number of parts
-          firstName = nameParts.length > 0 ? nameParts[0] : "";
-          lastName = nameParts.length > 1 ? nameParts[1] : ""; 
+      // Split the full name into parts
+      if (!String.isBlank(fullName)) {
+          String[] nameParts = fullName.trim().split(' ', 2); // Split into two parts
+          
+          // Assign the first and last names based on the parts
+          firstName = nameParts.size() > 0 ? nameParts[0] : '';
+          lastName = nameParts.size() > 1 ? nameParts[1] : ''; // If no last name, keep it empty
       }
 
-      // Return the FullName object
+      // Return the fullName Object
       return new FullName(firstName, lastName);
   }
 }

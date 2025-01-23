@@ -1,25 +1,12 @@
 public class BadReviewAutoResponseHelper {
-  /**
-   * Send email to feedback using CustomerEmail address
-   */
-  public static void sendEmail(List<Feedback__c> feedbacks) {
-    Map<Id,Id> feedbackAndContactIdMapping = new Map<Id,Id>();
-
-    for (Feedback__c feedback : feedbacks) {
-      feedbackAndContactIdMapping.put(feedback.id, feedback.contact__c);
-    }
-
-    EmailService.sendEmail(feedbackAndContactIdMapping,  'Apology email');
-  }
-
+  
   /**
    * Create new contact from feedback
    */
-  public static void createContact(List<Feedback__c> feedbacks) {
+  public static void createContactAndFollowupActions(List<Feedback__c> feedbacks) {
     List<Contact> contacts = new List<Contact>();
-
+    
     Map<String, Contact> existingContacts = getExistingContacts(feedbacks);
-    Map<ID, ID> feedbackToContactMapping = new Map<ID, ID>();
 
     for (Feedback__c feedback : feedbacks) {
       //duplicate prevention
@@ -36,32 +23,78 @@ public class BadReviewAutoResponseHelper {
         );
 
         contacts.add(newContact);
+
+        existingContacts.put(feedback.Customer_Email__c, newContact);
       }
     }
 
     insert contacts;
 
-    // Add contact lookup to each feedback record
-    for(Feedback__c feedback : feedbacks){
-      feedback.contact__c = existingContacts.get(feedback.Customer_Email__c).id;
-    }
 
-    update feedbacks;
+    saveContactLookup(feedbacks, existingContacts);
+
+    feedbackFollowup(feedbacks, existingContacts);
   }
 
+  /**
+   * Create new contact from feedback
+   */
+  public static void saveContactLookup(List<Feedback__c> feedbacks, Map<String, Contact> existingContacts) {
+
+      List<Feedback__c> feedbacksToUpdate = new List<Feedback__c>();
+      
+      // Add contact lookup to each feedback record
+      for(Feedback__c feedback : feedbacks){
+        Id feedbackId = feedback.id;
+        Id contactId = existingContacts.get(feedback.Customer_Email__c).id;
+
+        Feedback__c feedbackToUpdate = new Feedback__c(
+          id = feedbackId,
+          contact__c = contactId
+        );
+
+        feedbacksToUpdate.add(feedbackToUpdate);
+      }
+
+      update feedbacksToUpdate;
+  }
+
+   /**
+   * Create new follow up task so that support team can help customer
+   */
+  private static void feedbackFollowup(List<Feedback__c> feedbacks, Map<String, Contact> existingContacts) {
+      Map<Id,Id> feedbackAndContactIdMapping = new Map<Id,Id>();
+
+      // Add contact lookup to each feedback record
+      for(Feedback__c feedback : feedbacks){
+        
+        // filter feedback for task creation and sending email 
+        if(feedback.Rating__c <= 2){
+          Id contactId = existingContacts.get(feedback.Customer_Email__c).id;
+          feedbackAndContactIdMapping.put(feedback.Id, contactId);
+        }
+      }
+
+      if(feedbackAndContactIdMapping.size() > 0){
+        EmailService.sendEmail(feedbackAndContactIdMapping,  'Apology email');
+        createTask(feedbackAndContactIdMapping);
+      }
+  }
 
   /**
    * Create new follow up task so that support team can help customer
    */
-  public static void createTask(List<Feedback__c> feedbacks) {
+  private static void createTask(Map<Id,Id> feedbackAndContactIdMapping) {
     List<Task> tasks = new List<Task>();
 
-    for (Feedback__c feedback : feedbacks) {
+    for (Id feedbackId : feedbackAndContactIdMapping.keyset()) {
+      Id contactId = feedbackAndContactIdMapping.get(feedbackId);
       Task newTask = new Task(
         Subject = 'Respond to Bad feedback review',
         Status = 'Not Started', 
         Priority = 'Normal' ,
-        Whatid = feedback.Id
+        Whatid = feedbackId,
+        WhoId = contactId
       );
 
       tasks.add(newTask);
@@ -70,9 +103,7 @@ public class BadReviewAutoResponseHelper {
     insert tasks;
   }
 
-  private static Map<String, Contact> getExistingContacts(
-    List<Feedback__c> feedbacks
-  ) {
+  private static Map<String, Contact> getExistingContacts( List<Feedback__c> feedbacks) {
     List<String> contactEmails = new List<String>();
 
     //capturing all email address from feedback records
@@ -83,7 +114,7 @@ public class BadReviewAutoResponseHelper {
     Map<String, Contact> existingContacts = new Map<String, Contact>();
 
     // Query Contacts based on the email and store contacts in the existingContacts if found
-    for (Contact contact : [ SELECT Id FROM Contact WHERE Email IN :contactEmails ]) {
+    for (Contact contact : [ SELECT Id, email FROM Contact WHERE Email IN :contactEmails ]) {
       existingContacts.put(contact.email, contact);
     }
 
