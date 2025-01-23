@@ -4,7 +4,7 @@
 
              <!-- File Upload (visible after successful record creation) -->
              <template lwc:if={isRecordSaved}>
-                Feedback has been created successfually, You can add supporting documents below.
+                <div>Feedback has been created successfually, You can add supporting documents below. </div>
 
                 <lightning-file-upload
                     label="Attach Files"
@@ -16,7 +16,7 @@
             </template>
 
             <template lwc:else>  
-                You will be able to attach documentd after Feedback is created. 
+                <div>You will be able to attach documentd after Feedback is created. </div>
                 <lightning-record-edit-form
                     object-api-name="Feedback__c"
                     onsuccess={handleSuccess}
