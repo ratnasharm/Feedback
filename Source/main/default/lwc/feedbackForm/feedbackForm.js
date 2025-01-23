@@ -46,7 +46,12 @@ export default class FeedbackForm extends LightningElement {
     handleUploadFinished(event) {
         this.isRecordSaved = false;
         const uploadedFiles = event.detail.files;
-        this.ShowToastEvent('Success', `${uploadedFiles.length} file(s) uploaded successfully!`, 'success');
+        const evt = new ShowToastEvent({
+            title: 'Success!',
+            message: `${uploadedFiles.length} file(s) uploaded successfully!`,
+            variant: 'success',
+            mode: 'dismissable'
+        });
         this.dispatchEvent(evt);
     }
 }
