@@ -33,6 +33,7 @@ public class EmailService {
             messages.add(message);
         }
 
+        Messaging.SendEmailResult[] results = Messaging.sendEmail(messages);
     }
 
     /**

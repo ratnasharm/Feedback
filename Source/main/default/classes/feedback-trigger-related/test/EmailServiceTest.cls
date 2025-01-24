@@ -10,12 +10,19 @@ public class EmailServiceTest {
             FolderId = UserInfo.getUserId(), // Storing in the current user's private folder
             Subject = 'sample test',
             HtmlValue = 'email body',
-            TemplateType = 'custom'
+            TemplateType = 'custom',
+            IsActive = true
         );
-        //insert template;
+        insert template;
 
-        // Create test Contacts
-        List<Contact> contacts = new List<Contact>{
+       
+    }
+
+    @isTest
+    static void testSendEmail() {
+        
+         // Create test Contacts
+         List<Contact> contacts = new List<Contact>{
             new Contact(FirstName = 'Ratna', LastName = 'Bhardwaj', Email = 'xx.yy@zz.com'),
             new Contact(FirstName = 'Ratna2', LastName = 'Bhardwaj', Email = 'xx.yy2@zz.com')
         };
@@ -27,14 +34,7 @@ public class EmailServiceTest {
             new Account(Name = 'Acme2')
         };
         insert accounts;
-    }
-
-    @isTest
-    static void testSendEmail() {
         
-        List<Contact> contacts = [SELECT Id FROM Contact]; 
-        List<Account> accounts = [SELECT Id FROM Account]; 
-
         
         Map<Id, Id> whatIdAndContactMapping = new Map<Id, Id>();
         whatIdAndContactMapping.put(accounts[0].Id, contacts[0].Id); // Map Feedback__c to Contact
@@ -42,7 +42,7 @@ public class EmailServiceTest {
 
         // Execute the method being tested
         Test.startTest();
-        EmailService.sendEmail(whatIdAndContactMapping, 'Apologyxx');
+        EmailService.sendEmail(whatIdAndContactMapping, 'Template Nmame');
         Test.stopTest();
 
         // no error until now
