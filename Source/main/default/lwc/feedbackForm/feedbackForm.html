@@ -9,8 +9,9 @@
                 <lightning-file-upload
                     label="Attach Files"
                     name="fileUploader"
-                    accept=".pdf,.jpg,.png,.docx"
+                    accept=".pdf,.jpg,.png,.jpeg"
                     record-id={recordId}
+                    multiple="true"
                     onuploadfinished={handleUploadFinished}
                 ></lightning-file-upload>
             </template>
@@ -24,10 +25,10 @@
                 >
                     
                     <!-- Customer Email -->
-                    <lightning-input-field field-name="Customer_Email__c" class="slds-m-bottom_medium"></lightning-input-field>
+                    <lightning-input-field required="true" field-name="Customer_Email__c" class="slds-m-bottom_medium"></lightning-input-field>
 
                     <!-- Customer Name -->
-                    <lightning-input-field field-name="Customer_name__c" class="slds-m-bottom_medium"></lightning-input-field>
+                    <lightning-input-field required="true" field-name="Customer_name__c" class="slds-m-bottom_medium"></lightning-input-field>
 
 
                     <!-- Rating -->
