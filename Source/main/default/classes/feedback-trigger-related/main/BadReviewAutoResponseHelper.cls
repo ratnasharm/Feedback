@@ -115,6 +115,7 @@ public class BadReviewAutoResponseHelper {
         WhoId = feedbackAndContactIdMapping.get(feedbackId) // Link to the Contact.
       );
 
+      System.debug('task-->' + newTask);
       tasks.add(newTask);
     }
 
